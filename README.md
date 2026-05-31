@@ -36,7 +36,7 @@ pip install fpdf2
 
 ### 2. 运行程序
 ```bash
-cd "d:\如月\Code\Trae\VibeLearning\BilingualPDF"
+cd "\文件路径\BilingualPDF"
 python main.py
 ```
 
