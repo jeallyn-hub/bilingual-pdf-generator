@@ -9,38 +9,50 @@
 - **PDF输出**: 生成左右两栏对照格式的PDF文档
 - **中文支持**: 完美支持中文字体显示
 - **灵活配置**: 支持自定义输出文件名和布局参数
+- **语言自动检测**: 自动识别中日双语和中英双语字幕
+- **智能过滤**: 自动过滤字幕组招募信息、版本信息等元数据
 
 ## 📁 项目结构
 
 ```
 BilingualPDF/
 ├── main.py              # 主启动文件
-├── pdf_generator.py     # PDF生成模块
-├── file_parser.py       # 文件解析模块
-├── config.py            # 配置文件
 ├── requirements.txt     # 依赖列表
 ├── README.md           # 说明文档
-├── example/            # 示例文件目录
-│   ├── single_file.txt   # 单文件模式示例
-│   ├── english.txt      # 原文示例
-│   └── chinese.txt      # 译文示例
-└── output/             # 输出目录
+├── src/                # 源代码目录
+│   ├── parser/         # 文件解析模块
+│   │   └── file_parser.py
+│   ├── pdf/            # PDF生成模块
+│   │   └── generator.py
+│   ├── ui/             # 可视化界面模块
+│   │   └── gui.py
+│   └── config/         # 配置模块
+│       └── settings.py
+└── dist/               # 输出目录
 ```
 
 ## 🚀 快速开始
 
-### 1. 安装依赖
+### 1. 克隆项目
+
 ```bash
-pip install fpdf2
+git clone <repository-url>
+cd BilingualPDF
 ```
 
-### 2. 运行程序
+### 2. 安装依赖
+
 ```bash
-cd "\文件路径\BilingualPDF"
+pip install -r requirements.txt
+```
+
+### 3. 运行程序
+
+```bash
 python main.py
 ```
 
-### 3. 选择模式
+### 4. 选择模式
 - **模式1（单文件）**: 文件中每行格式为 `原文|||译文`
 - **模式2（双文件）**: 分别选择原文文件和译文文件
 
@@ -71,9 +83,17 @@ Goodbye
 再见
 ```
 
+### ASS字幕文件
+
+支持中日双语和中英双语ASS字幕文件，自动检测语言类型。
+
+### SRT字幕文件
+
+支持中日双语和中英双语SRT字幕文件，自动检测语言类型。
+
 ## ⚙️ 配置说明
 
-在 `config.py` 中可以自定义以下参数：
+在 `src/config/settings.py` 中可以自定义以下参数：
 
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
@@ -87,6 +107,8 @@ Goodbye
 
 - `.txt` - 纯文本文件
 - `.md` - Markdown文件
+- `.ass` - ASS字幕文件（支持中日/中英双语）
+- `.srt` - SRT字幕文件（支持中日/中英双语）
 
 ## 🎨 输出效果
 
@@ -100,6 +122,7 @@ Goodbye
 ## 📦 依赖
 
 - **fpdf2**: PDF生成库
+- **python-dotenv**: 环境变量管理
 - **Python**: 3.8+
 
 ## 📄 许可证
