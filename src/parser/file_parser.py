@@ -178,8 +178,12 @@ def parse_srt_english_chinese(srt_content):
                     else:
                         result.append('\n'.join(current_subtitle))
                 else:
-                    result.append('\n'.join(current_subtitle))
+                    if not is_metadata_line('\n'.join(current_subtitle)):
+                        result.append('\n'.join(current_subtitle))
                 current_subtitle = []
+            continue
+        
+        if is_metadata_line(line):
             continue
         
         current_subtitle.append(line)
@@ -193,9 +197,11 @@ def parse_srt_english_chinese(srt_content):
             elif contains_english(first) and contains_chinese(second):
                 result.append(f"{first}{DEFAULT_SEPARATOR}{second}")
             else:
-                result.append('\n'.join(current_subtitle))
+                if not is_metadata_line('\n'.join(current_subtitle)):
+                    result.append('\n'.join(current_subtitle))
         else:
-            result.append('\n'.join(current_subtitle))
+            if not is_metadata_line('\n'.join(current_subtitle)):
+                result.append('\n'.join(current_subtitle))
     
     return '\n'.join(result)
 
@@ -224,10 +230,15 @@ def parse_srt_japanese_chinese(srt_content):
                         if first and second:
                             result.append(f"{first}{DEFAULT_SEPARATOR}{second}")
                         else:
-                            result.append('\n'.join(current_subtitle))
+                            if not is_metadata_line('\n'.join(current_subtitle)):
+                                result.append('\n'.join(current_subtitle))
                 else:
-                    result.append('\n'.join(current_subtitle))
+                    if not is_metadata_line('\n'.join(current_subtitle)):
+                        result.append('\n'.join(current_subtitle))
                 current_subtitle = []
+            continue
+        
+        if is_metadata_line(line):
             continue
         
         current_subtitle.append(line)
@@ -248,9 +259,11 @@ def parse_srt_japanese_chinese(srt_content):
                 if first and second:
                     result.append(f"{first}{DEFAULT_SEPARATOR}{second}")
                 else:
-                    result.append('\n'.join(current_subtitle))
+                    if not is_metadata_line('\n'.join(current_subtitle)):
+                        result.append('\n'.join(current_subtitle))
         else:
-            result.append('\n'.join(current_subtitle))
+            if not is_metadata_line('\n'.join(current_subtitle)):
+                result.append('\n'.join(current_subtitle))
     
     return '\n'.join(result)
 
@@ -283,6 +296,10 @@ def parse_ass_to_text(ass_content):
                 text = text.replace(r'\n', '\n').replace(r'\h', ' ').replace(r'\t', '\t').replace(r'\r', '')
                 
                 if text:
+                    # 检查是否是元数据行（包含第几季、第几集等）
+                    if is_metadata_line(text):
+                        continue
+                    
                     # 检查是否以关键字开头
                     starts_with_keyword = any(text.startswith(keyword) for keyword in METADATA_KEYWORDS)
                     if starts_with_keyword:
@@ -358,6 +375,9 @@ def is_metadata_line(line):
         return True
     
     if line.startswith('第') and '章' in line:
+        return True
+    
+    if line.startswith('第') and ('季' in line or '集' in line):
         return True
     
     if any(keyword in line for keyword in METADATA_KEYWORDS):
