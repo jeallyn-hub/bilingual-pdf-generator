@@ -13,7 +13,6 @@ def build_exe():
         '--onefile',           # 单文件模式
         '--windowed',          # 窗口模式，不显示控制台
         '--name=双语PDF生成器',  # 输出文件名
-        '--icon=tools/icon.ico',  # 图标文件（可选）
         '--add-data=src;src',   # 包含src目录
         '--add-data=example;example',  # 包含示例文件
         '--add-data=output;output',    # 包含输出目录

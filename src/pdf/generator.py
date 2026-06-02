@@ -4,31 +4,63 @@ from src.config.settings import *
 import os
 
 class BilingualPDF(FPDF):
-    def __init__(self, title="双语对照文档"):
+    def __init__(self, title="双语对照文档", language='chinese'):
         super().__init__()
         self.set_auto_page_break(auto=True, margin=MARGIN_BOTTOM)
         self.title = title
+        self.language = language
         self._setup_font()
     
     def _setup_font(self):
-        """设置字体 - 尝试加载中文字体"""
+        """设置字体 - 支持中文、日语和英语"""
         self.chinese_font_available = False
-        try:
-            font_path = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts', 'simhei.ttf')
-            if os.path.exists(font_path):
+        self.japanese_font_available = False
+        self.simsun_font_available = False
+        
+        # 加载黑体（SimHei）
+        font_path = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts', 'simhei.ttf')
+        if os.path.exists(font_path):
+            try:
                 self.add_font('SimHei', '', font_path, uni=True)
                 self.chinese_font_available = True
-            else:
-                self.add_font('SimHei', '', 'simhei.ttf', uni=True)
-                self.chinese_font_available = True
-        except Exception:
-            pass  # 使用默认字体
+            except Exception:
+                pass
+        
+        # 加载宋体（SimSun）- 支持中日双语
+        font_path = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts', 'simsun.ttc')
+        if os.path.exists(font_path):
+            try:
+                self.add_font('SimSun', '', font_path, uni=True)
+                self.simsun_font_available = True
+            except Exception:
+                pass
+        
+        # 加载MS Gothic - 日语字体
+        font_path = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts', 'msgothic.ttc')
+        if os.path.exists(font_path):
+            try:
+                self.add_font('MS Gothic', '', font_path, uni=True)
+                self.japanese_font_available = True
+            except Exception:
+                pass
     
     def _set_font(self, size=FONT_SIZE_NORMAL, style=''):
-        """统一设置字体，优先使用中文字体"""
-        if self.chinese_font_available:
-            # 中文字体不支持样式参数，只设置字体和大小
+        """统一设置字体，根据语言选择合适的字体"""
+        # 对于日语模式，优先使用SimSun（支持中日双语）
+        if self.language == 'japanese':
+            if self.simsun_font_available:
+                self.set_font('SimSun', '', size)
+            elif self.chinese_font_available:
+                self.set_font('SimHei', '', size)
+            elif self.japanese_font_available:
+                self.set_font('MS Gothic', '', size)
+            else:
+                self.set_font(PDF_FONT, style, size)
+        # 对于中文模式，优先使用黑体
+        elif self.chinese_font_available:
             self.set_font('SimHei', '', size)
+        elif self.simsun_font_available:
+            self.set_font('SimSun', '', size)
         else:
             self.set_font(PDF_FONT, style, size)
     
@@ -108,8 +140,8 @@ class BilingualPDF(FPDF):
         self.output(output_path)
         return output_path
 
-def create_bilingual_pdf(bilingual_pairs, output_filename=None, title=None):
+def create_bilingual_pdf(bilingual_pairs, output_filename=None, title=None, language='chinese'):
     """创建双语PDF的便捷函数"""
     pdf_title = title if title else PDF_TITLE
-    pdf = BilingualPDF(title=pdf_title)
+    pdf = BilingualPDF(title=pdf_title, language=language)
     return pdf.generate_pdf(bilingual_pairs, output_filename)
